@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:alan_voice/alan_voice.dart';
 
 void main() {
   runApp(MyApp());
@@ -29,7 +30,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final databaseReference = FirebaseDatabase.instance.reference();
   Map<String, bool> hasPressed = <String, bool>{"s1": false, "s2": false};
-
+  _MyHomePageState() {
+    AlanVoice.addButton(
+        "cf455a78856f9efaa33d578be5d8b2972e956eca572e1d8b807a3e2338fdd0dc/stage",
+        buttonAlign: AlanVoice.BUTTON_ALIGN_LEFT);
+    AlanVoice.onCommand.add((command) {
+      debugPrint("got new command ${command.toString()}");
+    });
+  }
   void setButtonColor() {
     databaseReference.once().then((DataSnapshot snapshot) {
       print('Data : ${snapshot.value}');
