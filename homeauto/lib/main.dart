@@ -35,9 +35,32 @@ class _MyHomePageState extends State<MyHomePage> {
         "cf455a78856f9efaa33d578be5d8b2972e956eca572e1d8b807a3e2338fdd0dc/stage",
         buttonAlign: AlanVoice.BUTTON_ALIGN_LEFT);
     AlanVoice.onCommand.add((command) {
+      _handleCommand(command.data);
       debugPrint("got new command ${command.toString()}");
     });
   }
+  void _handleCommand(Map<String, dynamic> response) {
+    switch (response["command"]) {
+      case "onTubeLight":
+        pressButtonOn("s1");
+        break;
+      case "offTubeLight":
+        pressButtonOff("s1");
+        break;
+      case "onNightLamp":
+        pressButtonOn("s2");
+        break;
+      case "offNightLamp":
+        pressButtonOff("s2");
+        break;
+      case "deactivate":
+        AlanVoice.deactivate();
+        break;
+      default:
+        print("got new command ${response["command"]}");
+    }
+  }
+
   void setButtonColor() {
     databaseReference.once().then((DataSnapshot snapshot) {
       print('Data : ${snapshot.value}');
@@ -66,10 +89,26 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void createRecord(String bulb) {
+  void pressButtonOn(String buttonName) {
     databaseReference.once().then((DataSnapshot snapshot) {
       print('Data : ${snapshot.value}');
-      databaseReference.child(bulb).set((snapshot.value[bulb] == 0) ? 1 : 0);
+      databaseReference.child(buttonName).set(1);
+    });
+  }
+
+  void pressButtonOff(String buttonName) {
+    databaseReference.once().then((DataSnapshot snapshot) {
+      print('Data : ${snapshot.value}');
+      databaseReference.child(buttonName).set(0);
+    });
+  }
+
+  void pressButton(String buttonName) {
+    databaseReference.once().then((DataSnapshot snapshot) {
+      print('Data : ${snapshot.value}');
+      databaseReference
+          .child(buttonName)
+          .set((snapshot.value[buttonName] == 0) ? 1 : 0);
     });
   }
 
@@ -92,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ElevatedButton(
             child: Text('Tube Light'),
             onPressed: () {
-              createRecord("s1");
+              pressButton("s1");
               setColor("s1");
               setState(() {
                 hasPressed["s1"] = !hasPressed["s1"];
@@ -107,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ElevatedButton(
             child: Text('Night Lamp'),
             onPressed: () {
-              createRecord("s2");
+              pressButton("s2");
               setColor("s2");
               setState(() {
                 hasPressed["s2"] = !hasPressed["s2"];
